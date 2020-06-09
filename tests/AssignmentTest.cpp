@@ -1,10 +1,37 @@
+/*
+ * BSD 2-Clause License
+ *
+ * Copyright (c) 2012-2019, CNRS-UM LIRMM, CNRS-AIST JRL
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 #include <functional>
 #include <iostream>
 #include <memory>
 
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
-#include "doctest/doctest.h"
+#include <gtest/gtest.h>
 
 #include <tvm/Variable.h>
 #include <tvm/VariableVector.h>
@@ -301,13 +328,13 @@ void checkSimple(BLCPtr cstr, const Memory& mem, Type t, RHS r, bool bound = fal
   VectorXd p2 = VectorXd::Constant(1, 2);
   VectorXd p3 = VectorXd::Constant(1, 3);
 
-  FAST_CHECK_EQ(check(cstr, pm3), check(mem, t, r, pm3, bound));
-  FAST_CHECK_EQ(check(cstr, pm2), check(mem, t, r, pm2, bound));
-  FAST_CHECK_EQ(check(cstr, pm1), check(mem, t, r, pm1, bound));
-  FAST_CHECK_EQ(check(cstr, p0), check(mem, t, r, p0, bound));
-  FAST_CHECK_EQ(check(cstr, p1), check(mem, t, r, p1, bound));
-  FAST_CHECK_EQ(check(cstr, p2), check(mem, t, r, p2, bound));
-  FAST_CHECK_EQ(check(cstr, p3), check(mem, t, r, p3, bound));
+  ASSERT_EQ(check(cstr, pm3), check(mem, t, r, pm3, bound));
+  ASSERT_EQ(check(cstr, pm2), check(mem, t, r, pm2, bound));
+  ASSERT_EQ(check(cstr, pm1), check(mem, t, r, pm1, bound));
+  ASSERT_EQ(check(cstr, p0), check(mem, t, r, p0, bound));
+  ASSERT_EQ(check(cstr, p1), check(mem, t, r, p1, bound));
+  ASSERT_EQ(check(cstr, p2), check(mem, t, r, p2, bound));
+  ASSERT_EQ(check(cstr, p3), check(mem, t, r, p3, bound));
 }
 
 //check for the intersection of 2 bound constraints
@@ -324,13 +351,13 @@ void checkSimple(BLCPtr cstr1, BLCPtr cstr2, const Memory& mem)
   VectorXd p2 = VectorXd::Constant(1, 2);
   VectorXd p3 = VectorXd::Constant(1, 3);
 
-  FAST_CHECK_EQ(check(cstr1, pm3) && check(cstr2, pm3), check(mem, t, r, pm3, true));
-  FAST_CHECK_EQ(check(cstr1, pm2) && check(cstr2, pm2), check(mem, t, r, pm2, true));
-  FAST_CHECK_EQ(check(cstr1, pm1) && check(cstr2, pm1), check(mem, t, r, pm1, true));
-  FAST_CHECK_EQ(check(cstr1, p0) && check(cstr2, p0), check(mem, t, r, p0, true));
-  FAST_CHECK_EQ(check(cstr1, p1) && check(cstr2, p1), check(mem, t, r, p1, true));
-  FAST_CHECK_EQ(check(cstr1, p2) && check(cstr2, p2), check(mem, t, r, p2, true));
-  FAST_CHECK_EQ(check(cstr1, p3) && check(cstr2, p3), check(mem, t, r, p3, true));
+  ASSERT_EQ(check(cstr1, pm3) && check(cstr2, pm3), check(mem, t, r, pm3, true));
+  ASSERT_EQ(check(cstr1, pm2) && check(cstr2, pm2), check(mem, t, r, pm2, true));
+  ASSERT_EQ(check(cstr1, pm1) && check(cstr2, pm1), check(mem, t, r, pm1, true));
+  ASSERT_EQ(check(cstr1, p0) && check(cstr2, p0), check(mem, t, r, p0, true));
+  ASSERT_EQ(check(cstr1, p1) && check(cstr2, p1), check(mem, t, r, p1, true));
+  ASSERT_EQ(check(cstr1, p2) && check(cstr2, p2), check(mem, t, r, p2, true));
+  ASSERT_EQ(check(cstr1, p3) && check(cstr2, p3), check(mem, t, r, p3, true));
 }
 
 // Check that each point (x,z) with z=-x, for x = -5,-3,1,0,1,3,5 verifies or violates the
@@ -368,13 +395,13 @@ void checkSubstitution(BLCPtr cstr, RHS subRhs, const Memory& mem, Type t, RHS r
   //std::cout << check(cstr, xy3)  <<", " << check(mem, t, r, xz3, false)  << std::endl;
   //std::cout << check(cstr, xy5)  <<", " << check(mem, t, r, xz5, false)  << std::endl;
 
-  FAST_CHECK_EQ(check(cstr, xym5), check(mem, t, r, xzm5, false));
-  FAST_CHECK_EQ(check(cstr, xym3), check(mem, t, r, xzm3, false));
-  FAST_CHECK_EQ(check(cstr, xym1), check(mem, t, r, xzm1, false));
-  FAST_CHECK_EQ(check(cstr, xy0), check(mem, t, r, xz0, false));
-  FAST_CHECK_EQ(check(cstr, xy1), check(mem, t, r, xz1, false));
-  FAST_CHECK_EQ(check(cstr, xy3), check(mem, t, r, xz3, false));
-  FAST_CHECK_EQ(check(cstr, xy5), check(mem, t, r, xz5, false));
+  ASSERT_EQ(check(cstr, xym5), check(mem, t, r, xzm5, false));
+  ASSERT_EQ(check(cstr, xym3), check(mem, t, r, xzm3, false));
+  ASSERT_EQ(check(cstr, xym1), check(mem, t, r, xzm1, false));
+  ASSERT_EQ(check(cstr, xy0), check(mem, t, r, xz0, false));
+  ASSERT_EQ(check(cstr, xy1), check(mem, t, r, xz1, false));
+  ASSERT_EQ(check(cstr, xy3), check(mem, t, r, xz3, false));
+  ASSERT_EQ(check(cstr, xy5), check(mem, t, r, xz5, false));
 }
 
 void checkAssignment(BLCPtr c, const AssignmentTarget& at, Memory& mem, Type t, RHS r, bool throws)
@@ -384,7 +411,7 @@ void checkAssignment(BLCPtr c, const AssignmentTarget& at, Memory& mem, Type t, 
   mem.randomize();
   if (throws)
   {
-    CHECK_THROWS(Assignment a(c, req, at, vars));
+    EXPECT_ANY_THROW(Assignment a(c, req, at, vars));
   }
   else
   {
@@ -402,7 +429,7 @@ void checkSubstitutionAssignment(BLCPtr c, Substitutions& s, const AssignmentTar
   mem.randomize();
   if (throws)
   {
-    CHECK_THROWS(Assignment a(c, req, at, vars, &s));
+    EXPECT_ANY_THROW(Assignment a(c, req, at, vars, &s));
   }
   else
   {
@@ -642,8 +669,7 @@ void checkSimpleBound(BLCPtr c1, BLCPtr c2)
 }
 
 // test for correct signs on the matrices and vector
-TEST_CASE("Test simple assignment")
-{
+TEST(AssignmentTest, simpleAssignment) {  // NOLINT
   Constraints cstr = buildSimpleConstraints();
   using T = std::vector<bool>;
   const bool t = true;
@@ -788,8 +814,7 @@ TEST_CASE("Test simple assignment")
   }
 }
 
-TEST_CASE("Test assignements with substitution")
-{
+TEST(AssignmentTest, assignmentsWithSubstitution) {  // NOLINT
   auto p0 = buildSimpleSubstitution(RHS::ZERO);
   auto p1 = buildSimpleSubstitution(RHS::AS_GIVEN);
   auto p2 = buildSimpleSubstitution(RHS::OPPOSITE);
@@ -897,8 +922,7 @@ TEST_CASE("Test assignements with substitution")
   }
 }
 
-TEST_CASE("Test assigments")
-{
+TEST(AssignmentTest, assignments) {  // NOLINT
   Constraints cstr = buildConstraints(3, 7);
 
   {
@@ -914,14 +938,14 @@ TEST_CASE("Test assigments")
     {
       const auto & cstr_A = cstr.Ax_geq_minus_b->jacobian(*cstr.Ax_geq_minus_b->variables()[0]);
       const auto & cstr_l = cstr.Ax_geq_minus_b->l();
-      FAST_CHECK_EQ(mem->A.block(range->start, 0, 3, 7), sqrt(2)*cstr_A);
-      FAST_CHECK_EQ(mem->l.block(range->start, 0, 3, 1), -sqrt(2)*cstr_l);
-      FAST_CHECK_EQ(mem->u.block(range->start, 0, 3, 1), sqrt(2)*VectorXd(3).setConstant(large));
+      ASSERT_EQ(mem->A.block(range->start, 0, 3, 7), sqrt(2)*cstr_A);
+      ASSERT_EQ(mem->l.block(range->start, 0, 3, 1), -sqrt(2)*cstr_l);
+      ASSERT_EQ(mem->u.block(range->start, 0, 3, 1), sqrt(2)*VectorXd(3).setConstant(large));
     }
 
-    FAST_CHECK_EQ(check(cstr.Ax_geq_minus_b, cstr.p0), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.p0));
-    FAST_CHECK_EQ(check(cstr.Ax_geq_minus_b, cstr.pl), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.pl));
-    FAST_CHECK_EQ(check(cstr.Ax_geq_minus_b, cstr.pu), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.pu));
+    ASSERT_EQ(check(cstr.Ax_geq_minus_b, cstr.p0), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.p0));
+    ASSERT_EQ(check(cstr.Ax_geq_minus_b, cstr.pl), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.pl));
+    ASSERT_EQ(check(cstr.Ax_geq_minus_b, cstr.pu), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.pu));
 
     //now we change the range of the target and refresh the assignment
     range->start = 0;
@@ -934,9 +958,9 @@ TEST_CASE("Test assigments")
     {
       const auto & cstr_A = cstr.Ax_geq_minus_b->jacobian(*cstr.Ax_geq_minus_b->variables()[0]);
       const auto & cstr_l = cstr.Ax_geq_minus_b->l();
-      FAST_CHECK_EQ(mem->A.block(range->start, 0, 3, 7), sqrt(2)*cstr_A);
-      FAST_CHECK_EQ(mem->l.block(range->start, 0, 3, 1), -sqrt(2)*cstr_l);
-      FAST_CHECK_EQ(mem->u.block(range->start, 0, 3, 1), sqrt(2)*VectorXd(3).setConstant(large));
+      ASSERT_EQ(mem->A.block(range->start, 0, 3, 7), sqrt(2)*cstr_A);
+      ASSERT_EQ(mem->l.block(range->start, 0, 3, 1), -sqrt(2)*cstr_l);
+      ASSERT_EQ(mem->u.block(range->start, 0, 3, 1), sqrt(2)*VectorXd(3).setConstant(large));
     }
   }
 
@@ -957,15 +981,15 @@ TEST_CASE("Test assigments")
       const auto & cstr_u = cstr.l_leq_Ax_leq_u->u();
       for(size_t i = 0; i < 3; ++i)
       {
-        FAST_CHECK_EQ(mem->A.row(i), sqrt(aW(i))*cstr_A.row(i));
-        FAST_CHECK_EQ(mem->A.row(i + 3), -sqrt(aW(i))*cstr_A.row(i));
-        FAST_CHECK_EQ(mem->b(i), sqrt(aW(i))*cstr_u(i));
-        FAST_CHECK_EQ(mem->b(i + 3), -sqrt(aW(i))*cstr_l(i));
+        ASSERT_EQ(mem->A.row(i), sqrt(aW(i))*cstr_A.row(i));
+        ASSERT_EQ(mem->A.row(i + 3), -sqrt(aW(i))*cstr_A.row(i));
+        ASSERT_EQ(mem->b(i), sqrt(aW(i))*cstr_u(i));
+        ASSERT_EQ(mem->b(i + 3), -sqrt(aW(i))*cstr_l(i));
       }
     }
 
-    FAST_CHECK_EQ(check(cstr.l_leq_Ax_leq_u, cstr.p0), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.p0));
-    FAST_CHECK_EQ(check(cstr.l_leq_Ax_leq_u, cstr.pl), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.pl));
-    FAST_CHECK_EQ(check(cstr.l_leq_Ax_leq_u, cstr.pu), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.pu));
+    ASSERT_EQ(check(cstr.l_leq_Ax_leq_u, cstr.p0), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.p0));
+    ASSERT_EQ(check(cstr.l_leq_Ax_leq_u, cstr.pl), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.pl));
+    ASSERT_EQ(check(cstr.l_leq_Ax_leq_u, cstr.pu), check(*mem.get(), at.constraintType(), at.constraintRhs(), cstr.pu));
   }
 }

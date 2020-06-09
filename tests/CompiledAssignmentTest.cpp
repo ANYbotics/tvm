@@ -1,6 +1,33 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
-#include "doctest/doctest.h"
+/*
+ * BSD 2-Clause License
+ *
+ * Copyright (c) 2012-2019, CNRS-UM LIRMM, CNRS-AIST JRL
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+#include <gtest/gtest.h>
 
 #define AUTHORIZE_MALLOC_FOR_CACHE
 #include <tvm/scheme/internal/CompiledAssignment.h>
@@ -307,7 +334,7 @@ struct Test
   template<typename V, typename U>
   static void run(const U& from, V& to, typename std::enable_if<F == EXTERNAL || (V::ColsAtCompileTime == 1)>::type * = nullptr)
   {
-    FAST_CHECK_UNARY(run_check(from, to));
+    ASSERT_TRUE(run_check(from, to));
   }
 };
 
@@ -335,7 +362,7 @@ struct TestNoFrom
     Eigen::internal::set_is_malloc_allowed(true);
     assign(A, t);
 
-    FAST_CHECK_UNARY(t.isApprox(to));
+    ASSERT_TRUE(t.isApprox(to));
   }
 };
 
@@ -415,8 +442,7 @@ void testBatch(const U & from, V && to)
 
 
 
-TEST_CASE("Test compiled assignments")
-{
+TEST(CompiledAssignmentTest, compiledAssignments) {  // NOLINT
   MatrixXd A = MatrixXd::Ones(5, 5);
   MatrixXd B = MatrixXd::Zero(5, 5);
   testBatch(A, B);
@@ -429,8 +455,7 @@ TEST_CASE("Test compiled assignments")
   testBatch<CONSTANT>(3, b);
 }
 
-TEST_CASE("Test compiled assignments wrapper")
-{
+TEST(AssignmentTest, compiledAssignmentsWrapper) {  // NOLINT
   typedef CompiledAssignmentWrapper<MatrixXd> MatrixAssignment;
   MatrixXd A1 = MatrixXd::Constant(3, 7, 1);
   MatrixXd A2 = MatrixXd::Constant(2, 7, 2);
@@ -455,18 +480,18 @@ TEST_CASE("Test compiled assignments wrapper")
   a[2].to(C);
   a[2].run();
 
-  FAST_CHECK_EQ(B.middleRows(0, 3), A1 + B_ref.middleRows(0,3));
-  FAST_CHECK_EQ(B.middleRows(3, 2), -A2);
-  FAST_CHECK_EQ(B.middleRows(5, 3), w.asDiagonal() * A3);
-  FAST_CHECK_EQ(B.middleRows(8, 4), s * A4);
+  ASSERT_EQ(B.middleRows(0, 3), A1 + B_ref.middleRows(0,3));
+  ASSERT_EQ(B.middleRows(3, 2), -A2);
+  ASSERT_EQ(B.middleRows(5, 3), w.asDiagonal() * A3);
+  ASSERT_EQ(B.middleRows(8, 4), s * A4);
 
-  FAST_CHECK_EQ(C, w.asDiagonal() * A1);
+  ASSERT_EQ(C, w.asDiagonal() * A1);
 
-  CHECK_THROWS(a[2].from(3));
+  EXPECT_ANY_THROW(a[2].from(3));
 
   //default constructor and copy
   MatrixAssignment ma;
   ma = MatrixAssignment::make<ADD, NONE, IDENTITY, EXTERNAL>(B.middleRows(0, 3), A1);
   ma.run();
-  FAST_CHECK_EQ(B.middleRows(0, 3), B_ref.middleRows(0, 3) + A1 + A1);
+  ASSERT_EQ(B.middleRows(0, 3), B_ref.middleRows(0, 3) + A1 + A1);
 }

@@ -1,9 +1,36 @@
+/*
+ * BSD 2-Clause License
+ *
+ * Copyright (c) 2012-2019, CNRS-UM LIRMM, CNRS-AIST JRL
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+#include <gtest/gtest.h>
+
 #include <tvm/graph/abstract/Node.h>
 #include <tvm/graph/abstract/OutputSelector.h>
-
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
-#include "doctest/doctest.h"
 
 #include <iostream>
 
@@ -76,25 +103,24 @@ public:
 };
 
 
-TEST_CASE("Test outputs selector")
-{
+TEST(OutputSelectorTest, outputsSelector) {  // NOLINT
   Provider3 p3;
-  FAST_CHECK_UNARY(p3.isOutputEnabled(Provider1::Output::O0));
-  FAST_CHECK_UNARY_FALSE(p3.isOutputEnabled(Provider1::Output::O1));
-  FAST_CHECK_UNARY(p3.isOutputEnabled(Provider1::Output::O2));
-  FAST_CHECK_UNARY_FALSE(p3.isOutputEnabled(Provider2::Output::O3));
-  FAST_CHECK_UNARY(p3.isOutputEnabled(Provider2::Output::O4));
+  EXPECT_TRUE(p3.isOutputEnabled(Provider1::Output::O0));
+  EXPECT_FALSE(p3.isOutputEnabled(Provider1::Output::O1));
+  EXPECT_TRUE(p3.isOutputEnabled(Provider1::Output::O2));
+  EXPECT_FALSE(p3.isOutputEnabled(Provider2::Output::O3));
+  EXPECT_TRUE(p3.isOutputEnabled(Provider2::Output::O4));
 
   Provider5 p5;
   for (int i = 0; i < 8; ++i)
   {
     if(i != 0 && i != 1 && i != 3 && i != 6)
     {
-      FAST_CHECK_UNARY(p5.isOutputEnabled(i));
+      EXPECT_TRUE(p5.isOutputEnabled(i));
     }
     else
     {
-      FAST_CHECK_UNARY_FALSE(p5.isOutputEnabled(i));
+      EXPECT_FALSE(p5.isOutputEnabled(i));
     }
   }
 
@@ -103,16 +129,16 @@ TEST_CASE("Test outputs selector")
   {
     if(i != 1 && i != 3 && i != 5 && i != 9)
     {
-      FAST_CHECK_UNARY(p6.isOutputEnabled(i));
+      EXPECT_TRUE(p6.isOutputEnabled(i));
     }
     else
     {
-      FAST_CHECK_UNARY_FALSE(p6.isOutputEnabled(i));
+      EXPECT_FALSE(p6.isOutputEnabled(i));
     }
   }
 
   p5.manualEnable(Provider4::Output::O6);
-  CHECK_THROWS_AS(p5.manualEnable(Provider1::Output::O1), std::runtime_error);
+  EXPECT_THROW(p5.manualEnable(Provider1::Output::O1), std::runtime_error);
   p5.lock();
-  CHECK_THROWS_AS(p5.manualDisable(Provider1::Output::O2), std::runtime_error);
+  EXPECT_THROW(p5.manualDisable(Provider1::Output::O2), std::runtime_error);
 }

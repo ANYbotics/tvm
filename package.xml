@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>tvm</name>
+  <version>0.8.0</version>
+  <description>The TVM library</description>
+  <maintainer email="avijayan@anybotics.com">Aravind Vijayan</maintainer>
+  <license>BSD-3</license>
+  <author>Adrien Escande</author>
+  <author email="pierre.gergondet@gmail.com">Pierre Gergondet</author>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>eigen</depend>
+  <depend>eigen-qld</depend>
+  <depend>eigen-quadprog</depend>
+
+  <test_depend>gtest</test_depend>
+
+  <test_depend>cmake_code_coverage</test_depend>
+
+</package>

@@ -1,6 +1,33 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
-#include "doctest/doctest.h"
+/*
+ * BSD 2-Clause License
+ *
+ * Copyright (c) 2012-2019, CNRS-UM LIRMM, CNRS-AIST JRL
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+#include <gtest/gtest.h>
 
 #include<tvm/Variable.h>
 #include<tvm/function/BasicLinearFunction.h>
@@ -56,12 +83,10 @@ using namespace Eigen;
   { \
     PP_ID(GENERATE(CREATE_VAR, EVAL_AFF, res2, expr, __VA_ARGS__)) \
   } \
-  FAST_CHECK_UNARY((res1-res2).isZero()); \
+  ASSERT_TRUE((res1-res2).isZero()); \
 }
 
-
-TEST_CASE("Test AffineExpr compilation and validity")
-{
+TEST(AffineExprTest, affineExprCompilationAndValidity) {  // NOLINT
   VectorXd vx = VectorXd::Random(5);
   VectorXd vy = VectorXd::Random(5);
   VectorXd vz = VectorXd::Random(3);
@@ -128,8 +153,7 @@ TEST_CASE("Test AffineExpr compilation and validity")
   TEST_AFFINE_EXPR(M * (A * x + u + d),                       x, vx, u, vu)
 }
 
-TEST_CASE("Test integration with ProtoTask")
-{
+TEST(AffineExprTest, integrationWithProtoTask) {  // NOLINT
   MatrixXd A = MatrixXd::Random(6, 5);
   VectorXd b = VectorXd::Random(6);
   

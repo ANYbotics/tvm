@@ -1,3 +1,34 @@
+/*
+ * BSD 2-Clause License
+ *
+ * Copyright (c) 2012-2019, CNRS-UM LIRMM, CNRS-AIST JRL
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+#include <gtest/gtest.h>
+
 #include <tvm/Space.h>
 #include <tvm/Variable.h>
 #include <tvm/constraint/BasicLinearConstraint.h>
@@ -10,12 +41,7 @@
 
 #include <Eigen/SVD>
 
-//#include <iostream>
 #include <vector>
-
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
-#include "doctest/doctest.h"
 
 using namespace tvm;
 using namespace tvm::hint;
@@ -81,17 +107,17 @@ namespace internal
       auto r = g.reduce();
       const auto& e = r.second.edges();
 
-      FAST_CHECK_UNARY(equal(r.first, { { 0,1,3 },{ 4 },{ 2,5 } }));
-      FAST_CHECK_EQ(e.size(), 2);
+      EXPECT_TRUE(equal(r.first, { { 0,1,3 },{ 4 },{ 2,5 } }));
+      EXPECT_EQ(e.size(), 2);
       //we have two edges, one from the SCC with size 3 to the SCC with size 1,
       //one from the SCC with size 3 to the SCC with size 2
       auto it1 = e.begin();
       auto it2 = e.begin(); ++it2;
-      FAST_CHECK_EQ(r.first[it1->first].size(), 3);
-      FAST_CHECK_EQ(r.first[it2->first].size(), 3);
+      EXPECT_EQ(r.first[it1->first].size(), 3);
+      EXPECT_EQ(r.first[it2->first].size(), 3);
       auto s1 = r.first[it1->second].size();
       auto s2 = r.first[it2->second].size();
-      FAST_CHECK_UNARY((s1 == 1 && s2 == 2) || (s1 == 2 && s2 == 1));
+      EXPECT_TRUE((s1 == 1 && s2 == 2) || (s1 == 2 && s2 == 1));
     }
 
     static void testOrder()
@@ -121,7 +147,7 @@ namespace internal
       auto r = g.order();
 
       std::set<std::vector<size_t>> v = { { 4,2,1,0,9,8 },{ 6,5,3 },{ 7 } };
-      FAST_CHECK_EQ(std::set<std::vector<size_t>>(r.begin(), r.end()), v);
+      EXPECT_EQ(std::set<std::vector<size_t>>(r.begin(), r.end()), v);
     }
   };
 
@@ -130,18 +156,15 @@ namespace internal
 }
 }
 
-TEST_CASE("SCC test")
-{
+TEST(SubstitutionTest, sccTest) {  // NOLINT
   SubstitutionTest::testSCC();
 }
 
-TEST_CASE("Order test")
-{
+TEST(SubstitutionTest, orderTest) {  // NOLINT
   SubstitutionTest::testOrder();
 }
 
-TEST_CASE("GenericCalculator")
-{
+TEST(SubstitutionTest, genericCalculator) {  // NOLINT
   VariablePtr x = Space(5).createVariable("x");
   VariablePtr y = Space(3).createVariable("y");
   MatrixXd A = MatrixXd::Random(5, 5);
@@ -156,13 +179,13 @@ TEST_CASE("GenericCalculator")
   MatrixXd AsA(5, 5);
   MatrixXd StA(0, 5);
   calc->premultiplyByASharpAndSTranspose(AsA, StA, A, false);
-  FAST_CHECK_UNARY(AsA.isIdentity());
+  EXPECT_TRUE(AsA.isIdentity());
 
   MatrixXd AsB(5, 3);
   MatrixXd StB(0, 3);
   calc->premultiplyByASharpAndSTranspose(AsB, StB, B, true);
   auto qrA = A.colPivHouseholderQr();
-  FAST_CHECK_UNARY(AsB.isApprox(-MatrixXd(qrA.solve(B))));
+  EXPECT_TRUE(AsB.isApprox(-MatrixXd(qrA.solve(B))));
 
   MatrixXd C(3, 5);
   C << 1, 0, 0, 0, 0,
@@ -178,15 +201,14 @@ TEST_CASE("GenericCalculator")
   MatrixXd CsD(5, 3);
   MatrixXd StD(1, 3);
   calc2->premultiplyByASharpAndSTranspose(CsD, StD, D, true);
-  FAST_CHECK_UNARY(CsD.topRows(2).isApprox(-D.topRows(2)));
-  FAST_CHECK_UNARY(CsD.bottomRows(3).isZero());
-  FAST_CHECK_UNARY(StD.isApprox(D.row(2)));
-  FAST_CHECK_UNARY(MatrixXd(C*calc2->N()).isZero());
-  FAST_CHECK_EQ(calc2->N().colPivHouseholderQr().rank(),3);
+  EXPECT_TRUE(CsD.topRows(2).isApprox(-D.topRows(2)));
+  EXPECT_TRUE(CsD.bottomRows(3).isZero());
+  EXPECT_TRUE(StD.isApprox(D.row(2)));
+  EXPECT_TRUE(MatrixXd(C*calc2->N()).isZero());
+  EXPECT_EQ(calc2->N().colPivHouseholderQr().rank(),3);
 }
 
-TEST_CASE("Diagonal Calculator")
-{
+TEST(SubstitutionTest, diagonalCalculator) {  // NOLINT
   VariablePtr x = Space(7).createVariable("x");
   VariablePtr y = Space(3).createVariable("y");
 
@@ -203,15 +225,15 @@ TEST_CASE("Diagonal Calculator")
     MatrixXd AsA(7, 7);
     MatrixXd StA(0, 7);
     calc->premultiplyByASharpAndSTranspose(AsA, StA, A, false);
-    FAST_CHECK_UNARY(AsA.isIdentity());
+    EXPECT_TRUE(AsA.isIdentity());
 
     MatrixXd AsB(7, 3);
     MatrixXd StB(0, 3);
     calc->premultiplyByASharpAndSTranspose(AsB, StB, B, false);
-    FAST_CHECK_UNARY(AsB.isApprox(B));
+    EXPECT_TRUE(AsB.isApprox(B));
 
-    FAST_CHECK_EQ(calc->N().rows(), 7);
-    FAST_CHECK_EQ(calc->N().cols(), 0);
+    EXPECT_EQ(calc->N().rows(), 7);
+    EXPECT_EQ(calc->N().cols(), 0);
   }
 
   {
@@ -230,12 +252,12 @@ TEST_CASE("Diagonal Calculator")
     MatrixXd AsA(7, 7);
     MatrixXd StA(0, 7);
     calc->premultiplyByASharpAndSTranspose(AsA, StA, A, false);
-    FAST_CHECK_UNARY(AsA.isApprox(A.transpose()* A));
+    EXPECT_TRUE(AsA.isApprox(A.transpose()* A));
 
     MatrixXd AsB(7, 3);
     MatrixXd StB(0, 3);
     calc->premultiplyByASharpAndSTranspose(AsB, StB, B, false);
-    FAST_CHECK_UNARY(AsB.isApprox(A.transpose()*B));
+    EXPECT_TRUE(AsB.isApprox(A.transpose()*B));
 
     MatrixXd N(7, 4);
     N << 1, 0, 0, 0,
@@ -245,7 +267,7 @@ TEST_CASE("Diagonal Calculator")
          0, 0, 0, 0,
          0, 0, 1, 0,
          0, 0, 0 ,1;
-    FAST_CHECK_UNARY(N.isApprox(calc->N()));
+    EXPECT_TRUE(N.isApprox(calc->N()));
   }
 
   {
@@ -266,15 +288,15 @@ TEST_CASE("Diagonal Calculator")
     MatrixXd AsA(7, 7);
     MatrixXd StA(2, 7);
     calc->premultiplyByASharpAndSTranspose(AsA, StA, A, false);
-    FAST_CHECK_UNARY(AsA.isApprox(A.transpose()* A));
-    FAST_CHECK_UNARY(StA.isZero());
+    EXPECT_TRUE(AsA.isApprox(A.transpose()* A));
+    EXPECT_TRUE(StA.isZero());
 
     MatrixXd AsB(7, 3);
     MatrixXd StB(2, 3);
     calc->premultiplyByASharpAndSTranspose(AsB, StB, B, false);
-    FAST_CHECK_UNARY(AsB.isApprox(A.transpose()*B));
-    FAST_CHECK_UNARY(StB.row(0).isApprox(B.row(0)));
-    FAST_CHECK_UNARY(StB.row(1).isApprox(B.row(2)));
+    EXPECT_TRUE(AsB.isApprox(A.transpose()*B));
+    EXPECT_TRUE(StB.row(0).isApprox(B.row(0)));
+    EXPECT_TRUE(StB.row(1).isApprox(B.row(2)));
 
     MatrixXd N(7, 4);
     N << 1, 0, 0, 0,
@@ -284,7 +306,7 @@ TEST_CASE("Diagonal Calculator")
          0, 0, 0, 0,
          0, 0, 1, 0,
          0, 0, 0 ,1;
-    FAST_CHECK_UNARY(N.isApprox(calc->N()));
+    EXPECT_TRUE(N.isApprox(calc->N()));
   }
   
 }
@@ -431,7 +453,7 @@ void checkEquivalence(const std::vector<std::shared_ptr<constraint::BasicLinearC
   auto sol0 = svdA.solve(b);         //least square solution
   auto r0 = (A*sol0 - b).norm();     //residual
   MatrixXd Na = svdA.matrixV().rightCols(A.cols() - svdA.rank()); //nullspace of A0
-  FAST_CHECK_LE(r0, 1e-9);
+  EXPECT_LE(r0, 1e-9);
 
    // Solve C [y;z] = d
   VectorXd sol1;
@@ -464,7 +486,7 @@ void checkEquivalence(const std::vector<std::shared_ptr<constraint::BasicLinearC
     xy.head(x.totalSize()) = x.value();
     xy.tail(y.totalSize()) = y.value();
     double res = (A*xy - b).norm();
-    FAST_CHECK_LE(res, 1e-9);
+    EXPECT_LE(res, 1e-9);
   }
 
   // 2 - The solutions of A [x;y] = b are such that there we can find z for which
@@ -495,12 +517,11 @@ void checkEquivalence(const std::vector<std::shared_ptr<constraint::BasicLinearC
     {
       res = u.norm();
     }
-    FAST_CHECK_LE(res, 1e-9);
+    EXPECT_LE(res, 1e-9);
   }
 }
 
-TEST_CASE("Substitution construction")
-{
+TEST(SubstitutionTest, substitutionConstruction) {  // NOLINT
   using BLC = constraint::BasicLinearConstraint;
   auto eq = constraint::Type::EQUAL;
 
@@ -511,8 +532,8 @@ TEST_CASE("Substitution construction")
 
     auto c = std::shared_ptr<BLC>(new BLC(A, x, b, eq));
     Substitution s(c, x);
-    FAST_CHECK_EQ(s.rank(), 5);
-    FAST_CHECK_EQ(typeid(*s.calculator()).hash_code(), typeid(GenericCalculator::Impl).hash_code());
+    EXPECT_EQ(s.rank(), 5);
+    EXPECT_EQ(typeid(*s.calculator()).hash_code(), typeid(GenericCalculator::Impl).hash_code());
   }
 
   {
@@ -522,8 +543,8 @@ TEST_CASE("Substitution construction")
     auto c = std::shared_ptr<BLC>(new BLC(5, x, eq));
     c->A(A, { tvm::internal::MatrixProperties::IDENTITY });
     Substitution s(c, x);
-    FAST_CHECK_EQ(s.rank(), 5);
-    FAST_CHECK_EQ(typeid(*s.calculator()).hash_code(), typeid(DiagonalCalculator::Impl).hash_code());
+    EXPECT_EQ(s.rank(), 5);
+    EXPECT_EQ(typeid(*s.calculator()).hash_code(), typeid(DiagonalCalculator::Impl).hash_code());
   }
 
   {
@@ -531,22 +552,21 @@ TEST_CASE("Substitution construction")
     VectorXd b = VectorXd::Random(5);
 
     auto c = std::shared_ptr<BLC>(new BLC(A, x, b, constraint::Type::LOWER_THAN));
-    CHECK_THROWS(Substitution s(c, x));
+    EXPECT_ANY_THROW(Substitution s(c, x));
 
     VariablePtr y = Space(3).createVariable("y");
-    CHECK_THROWS(Substitution s(c, y));
+    EXPECT_ANY_THROW(Substitution s(c, y));
 
     auto c2 = std::shared_ptr<BLC>(new BLC(3, y, eq));
-    CHECK_THROWS(Substitution s({ c, c2 }, x));
+    EXPECT_ANY_THROW(Substitution s({ c, c2 }, x));
 
     auto c3 = std::shared_ptr<BLC>(new BLC(5, y, eq));
-    CHECK_THROWS(Substitution s(c3, y));
+    EXPECT_ANY_THROW(Substitution s(c3, y));
 
   }
 }
 
-TEST_CASE("Substitution0")
-{
+TEST(SubstitutionTest, substitution0) {  // NOLINT
   using BLC = constraint::BasicLinearConstraint;
   auto eq = constraint::Type::EQUAL;
 
@@ -562,23 +582,22 @@ TEST_CASE("Substitution0")
     Substitutions subs;
     subs.add(s);
     subs.finalize();
-    FAST_CHECK_EQ(subs.variables().size(), 1);
-    FAST_CHECK_EQ(subs.variables().front(), x);
-    FAST_CHECK_EQ(subs.additionalVariables().size(), 0);
-    FAST_CHECK_EQ(subs.additionalConstraints().size(), 0);
-    FAST_CHECK_EQ(subs.variableSubstitutions().size(), 1);
+    EXPECT_EQ(subs.variables().size(), 1);
+    EXPECT_EQ(subs.variables().front(), x);
+    EXPECT_EQ(subs.additionalVariables().size(), 0);
+    EXPECT_EQ(subs.additionalConstraints().size(), 0);
+    EXPECT_EQ(subs.variableSubstitutions().size(), 1);
 
     auto f = subs.variableSubstitutions().front();
-    FAST_CHECK_EQ(f->variables().totalSize(), 0);
+    EXPECT_EQ(f->variables().totalSize(), 0);
     subs.updateSubstitutions();
-    FAST_CHECK_UNARY(f->b().isApprox(x0));
+    EXPECT_TRUE(f->b().isApprox(x0));
     subs.updateVariableValues();
-    FAST_CHECK_UNARY(x->value().isApprox(x0));
+    EXPECT_TRUE(x->value().isApprox(x0));
   }
 }
 
-TEST_CASE("Substitution1")
-{
+TEST(SubstitutionTest, substitution1) {  // NOLINT
   int m1 = 3; int n1 = 4; int r1 = 2;
   int m2 = 3; int n2 = 3; int r2 = 3;
   int m3 = 3; int n3 = 6; int r3 = 3;
@@ -668,8 +687,7 @@ TEST_CASE("Substitution1")
   checkEquivalence({ c1,c2,c3,c4,c5,c6 }, subs);
 }
 
-TEST_CASE("Substitution2")
-{
+TEST(SubstitutionTest, substitution2) {  // NOLINT
   int m1 = 3; int n1 = 4;
   int m2 = 3; int n2 = 3;
   int m3 = 3; int n3 = 6;
@@ -942,8 +960,7 @@ TEST_CASE("Substitution2")
     checkEquivalence(cstr, subs);
   }
 
-  TEST_CASE("Random substitutions")
-  {
+TEST(SubstitutionTest, randomSubstitutions) {  // NOLINT
     //In some very rare instance, this test can fail because of rank issues
     //during the qr decomposition of GenericCalculator. This is because of the
     //heuristic taken to get the rank of a group of constraints. This is not to

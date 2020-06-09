@@ -1,3 +1,34 @@
+/*
+ * BSD 2-Clause License
+ *
+ * Copyright (c) 2012-2019, CNRS-UM LIRMM, CNRS-AIST JRL
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+#include <gtest/gtest.h>
+
 #include "SolverTestFunctions.h"
 #include <tvm/Task.h>
 #include <tvm/Variable.h>
@@ -11,10 +42,6 @@
 #include <tvm/utils/UpdatelessFunction.h>
 
 #include <iostream>
-
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
-#include "doctest/doctest.h"
 
 using namespace Eigen;
 using namespace tvm;
@@ -31,56 +58,56 @@ void checkSimpleBoundOnFunction(const T& bound)
 
   {
     Task t(f == bound, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::EQUAL);
-    FAST_CHECK_EQ(t.function(), f);
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::EQUAL);
+    EXPECT_EQ(t.function(), f);
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(bound == f, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::EQUAL);
-    FAST_CHECK_EQ(t.function(), f);
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::EQUAL);
+    EXPECT_EQ(t.function(), f);
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(f >= bound, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::GREATER_THAN);
-    FAST_CHECK_EQ(t.function(), f);
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::GREATER_THAN);
+    EXPECT_EQ(t.function(), f);
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(bound <= f, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::GREATER_THAN);
-    FAST_CHECK_EQ(t.function(), f);
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::GREATER_THAN);
+    EXPECT_EQ(t.function(), f);
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(f <= bound, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::LOWER_THAN);
-    FAST_CHECK_EQ(t.function(), f);
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::LOWER_THAN);
+    EXPECT_EQ(t.function(), f);
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(bound >= f, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::LOWER_THAN);
-    FAST_CHECK_EQ(t.function(), f);
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::LOWER_THAN);
+    EXPECT_EQ(t.function(), f);
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 }
 
@@ -95,20 +122,20 @@ void checkDoubleBoundsOnFunction(const L& l, const U& u)
 
   {
     Task t(l <= f <= u, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::DOUBLE_SIDED);
-    FAST_CHECK_EQ(t.function(), f);
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::DOUBLE_SIDED);
+    EXPECT_EQ(t.function(), f);
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_TRUE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(l >= f >= u, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::DOUBLE_SIDED);
-    FAST_CHECK_EQ(t.function(), f);
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::DOUBLE_SIDED);
+    EXPECT_EQ(t.function(), f);
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_TRUE(t.secondBoundTaskDynamics());
   }
 }
 
@@ -121,56 +148,56 @@ void checkSimpleBoundOnVariable(const T& bound)
 
   {
     Task t(x == bound, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::EQUAL);
-    FAST_CHECK_UNARY(t.function()->jacobian(*x).properties().isIdentity());
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::EQUAL);
+    EXPECT_TRUE(t.function()->jacobian(*x).properties().isIdentity());
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(bound == x, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::EQUAL);
-    FAST_CHECK_UNARY(t.function()->jacobian(*x).properties().isIdentity());
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::EQUAL);
+    EXPECT_TRUE(t.function()->jacobian(*x).properties().isIdentity());
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(x >= bound, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::GREATER_THAN);
-    FAST_CHECK_UNARY(t.function()->jacobian(*x).properties().isIdentity());
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::GREATER_THAN);
+    EXPECT_TRUE(t.function()->jacobian(*x).properties().isIdentity());
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(bound <= x, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::GREATER_THAN);
-    FAST_CHECK_UNARY(t.function()->jacobian(*x).properties().isIdentity());
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::GREATER_THAN);
+    EXPECT_TRUE(t.function()->jacobian(*x).properties().isIdentity());
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(x <= bound, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::LOWER_THAN);
-    FAST_CHECK_UNARY(t.function()->jacobian(*x).properties().isIdentity());
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::LOWER_THAN);
+    EXPECT_TRUE(t.function()->jacobian(*x).properties().isIdentity());
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(bound >= x, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::LOWER_THAN);
-    FAST_CHECK_UNARY(t.function()->jacobian(*x).properties().isIdentity());
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY_FALSE(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::LOWER_THAN);
+    EXPECT_TRUE(t.function()->jacobian(*x).properties().isIdentity());
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_FALSE(t.secondBoundTaskDynamics());
   }
 }
 
@@ -184,25 +211,24 @@ void checkDoubleBoundsOnVariable(const L& l, const U& u)
 
   {
     Task t(l <= x <= u, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::DOUBLE_SIDED);
-    FAST_CHECK_UNARY(t.function()->jacobian(*x).properties().isIdentity());
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::DOUBLE_SIDED);
+    EXPECT_TRUE(t.function()->jacobian(*x).properties().isIdentity());
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_TRUE(t.secondBoundTaskDynamics());
   }
 
   {
     Task t(l >= x >= u, td);
-    FAST_CHECK_EQ(t.type(), constraint::Type::DOUBLE_SIDED);
-    FAST_CHECK_UNARY(t.function()->jacobian(*x).properties().isIdentity());
-    CHECK_NOTHROW(t.taskDynamics<task_dynamics::P>());
-    CHECK_THROWS(t.taskDynamics<task_dynamics::PD>());
-    FAST_CHECK_UNARY(t.secondBoundTaskDynamics());
+    EXPECT_EQ(t.type(), constraint::Type::DOUBLE_SIDED);
+    EXPECT_TRUE(t.function()->jacobian(*x).properties().isIdentity());
+    EXPECT_NO_THROW(t.taskDynamics<task_dynamics::P>());
+    EXPECT_ANY_THROW(t.taskDynamics<task_dynamics::PD>());
+    EXPECT_TRUE(t.secondBoundTaskDynamics());
   }
 }
 
-TEST_CASE("Test Proto task")
-{
+TEST(UtilsTest, protoTask) {  // NOLINT
   // scalar-defined bounds
   checkSimpleBoundOnFunction(0.);
   checkDoubleBoundsOnFunction(-1., 3.);
@@ -231,8 +257,7 @@ TEST_CASE("Test Proto task")
   checkSimpleBoundOnVariable(A*l - u);
 }
 
-TEST_CASE("Test UpdatelessFunction")
-{
+TEST(UtilsTest, updatelessFunction) {  // NOLINT
   //value
   VariablePtr x = Space(2).createVariable("x");
   VariablePtr y = Space(4).createVariable("y");
@@ -250,10 +275,10 @@ TEST_CASE("Test UpdatelessFunction")
   VectorXd zr = VectorXd::Random(3);
 
   VectorXd v = uf.value(xr, yr, zr);
-  FAST_CHECK_UNARY(v.isApprox(Ax * xr + Ay * yr + Az * zr));
-  FAST_CHECK_UNARY(x->value().isApprox(xr));
-  FAST_CHECK_UNARY(y->value().isApprox(yr));
-  FAST_CHECK_UNARY(z->value().isApprox(zr));
+  EXPECT_TRUE(v.isApprox(Ax * xr + Ay * yr + Az * zr));
+  EXPECT_TRUE(x->value().isApprox(xr));
+  EXPECT_TRUE(y->value().isApprox(yr));
+  EXPECT_TRUE(z->value().isApprox(zr));
 
   VectorXd xm(2); xm << 1, 2;
   VectorXd ym(4); ym << 3, 4, 5, 6;
@@ -261,38 +286,38 @@ TEST_CASE("Test UpdatelessFunction")
 
   using l = std::initializer_list<double>;
   v = uf.value(l{ 1,2 }, l{ 3,4,5,6 }, l{ 7., 8., 9. });
-  FAST_CHECK_UNARY(v.isApprox(Ax * xm + Ay * ym + Az * zm));
+  EXPECT_TRUE(v.isApprox(Ax * xm + Ay * ym + Az * zm));
 
   v = uf.value(l{ 1,2 }, yr, l{ 7., 8., 9. });
-  FAST_CHECK_UNARY(v.isApprox(Ax * xm + Ay * yr + Az * zm));
+  EXPECT_TRUE(v.isApprox(Ax * xm + Ay * yr + Az * zm));
 
   v = uf.value(*x, xr);
-  FAST_CHECK_UNARY(v.isApprox(Ax * xr + Ay * yr + Az * zm));
+  EXPECT_TRUE(v.isApprox(Ax * xr + Ay * yr + Az * zm));
 
   v = uf.value(*z, l{ 1,2,3 }, *y, l{ 3,4,5,6 }, *z, l{ 7,8,9 }, *x, xr);
-  FAST_CHECK_UNARY(v.isApprox(Ax * xr + Ay * ym + Az * zm));
+  EXPECT_TRUE(v.isApprox(Ax * xr + Ay * ym + Az * zm));
 
   VectorXd concatr(9);
   concatr << xr, yr, zr;
   v = uf.value(concatr);
-  FAST_CHECK_UNARY(v.isApprox(Ax * xr + Ay * yr + Az * zr));
+  EXPECT_TRUE(v.isApprox(Ax * xr + Ay * yr + Az * zr));
 
   v = uf.value(l{ 1,2,3,4,5,6,7,8,9 });
-  FAST_CHECK_UNARY(v.isApprox(Ax * xm + Ay * ym + Az * zm));
+  EXPECT_TRUE(v.isApprox(Ax * xm + Ay * ym + Az * zm));
 
   //errors
   // not enough args
-  CHECK_THROWS(uf.value(xr, yr));
-  CHECK_THROWS(uf.value(l{ 1,2 }, l{3,4,5,6}));
+  EXPECT_ANY_THROW(uf.value(xr, yr));
+  EXPECT_ANY_THROW(uf.value(l{ 1,2 }, l{3,4,5,6}));
   //uf.value(*x); //does not compile (and that's normal)
   // too many args
-  CHECK_THROWS(uf.value(xr, yr, zr, xm, ym, zm));
-  CHECK_THROWS(uf.value(l{ 1,2 }, l{ 3,4,5,6 }, zr, l{ 7,8,9 }));
+  EXPECT_ANY_THROW(uf.value(xr, yr, zr, xm, ym, zm));
+  EXPECT_ANY_THROW(uf.value(l{ 1,2 }, l{ 3,4,5,6 }, zr, l{ 7,8,9 }));
   //uf.value(*x, xr, yr); //does not compile (and that's normal)
   // wrong size
-  CHECK_THROWS(uf.value(xr, zr, yr));
-  CHECK_THROWS(uf.value(l{ 1,2,3 }, l{ 3,4,5,6 }, l{ 7., 8., 9. }));
-  CHECK_THROWS(uf.value(*x, zr));
+  EXPECT_ANY_THROW(uf.value(xr, zr, yr));
+  EXPECT_ANY_THROW(uf.value(l{ 1,2,3 }, l{ 3,4,5,6 }, l{ 7., 8., 9. }));
+  EXPECT_ANY_THROW(uf.value(*x, zr));
 
 
   //jacobian
@@ -302,15 +327,15 @@ TEST_CASE("Test UpdatelessFunction")
   UpdatelessFunction udf(df);
 
   MatrixXd J = udf.jacobian(*x, xr, zr);
-  FAST_CHECK_UNARY(J.isApprox(2 * xr.transpose()));
+  EXPECT_TRUE(J.isApprox(2 * xr.transpose()));
   J = udf.jacobian(*z, xr, zr);
-  FAST_CHECK_UNARY(J.isApprox(-2 * (zr - Vector3d(0, 0, 1)).transpose()));
+  EXPECT_TRUE(J.isApprox(-2 * (zr - Vector3d(0, 0, 1)).transpose()));
   J = udf.jacobian(*x, l{ 1,2 }, l{ 7,8,9 });
-  FAST_CHECK_UNARY(J.isApprox(2 * xm.transpose()));
+  EXPECT_TRUE(J.isApprox(2 * xm.transpose()));
   J = udf.jacobian(*x, *x, l{ 1,2 });
-  FAST_CHECK_UNARY(J.isApprox(2 * xm.transpose()));
+  EXPECT_TRUE(J.isApprox(2 * xm.transpose()));
   J = udf.jacobian(*x, l{ 1,2,7,8,9 });
-  FAST_CHECK_UNARY(J.isApprox(2 * xm.transpose()));
+  EXPECT_TRUE(J.isApprox(2 * xm.transpose()));
 
   //velocity
   VectorXd dxr = VectorXd::Random(2);
@@ -318,102 +343,100 @@ TEST_CASE("Test UpdatelessFunction")
   VectorXd dzr = VectorXd::Random(3);
   
   VectorXd dv = uf.velocity(xr, dxr, yr, dyr, zr, dzr);
-  FAST_CHECK_UNARY(dv.isApprox(Ax * dxr + Ay * dyr + Az * dzr));
-  FAST_CHECK_UNARY(dot(x)->value().isApprox(dxr));
-  FAST_CHECK_UNARY(dot(y)->value().isApprox(dyr));
-  FAST_CHECK_UNARY(dot(z)->value().isApprox(dzr));
+  EXPECT_TRUE(dv.isApprox(Ax * dxr + Ay * dyr + Az * dzr));
+  EXPECT_TRUE(dot(x)->value().isApprox(dxr));
+  EXPECT_TRUE(dot(y)->value().isApprox(dyr));
+  EXPECT_TRUE(dot(z)->value().isApprox(dzr));
 
   VectorXd dxm(2); dxm << -1, -2;
   VectorXd dym(4); dym << -3, -4, -5, -6;
   VectorXd dzm(3); dzm << -7, -8, -9;
 
   dv = uf.velocity(l{ 1,2 }, l{ -1,-2 }, l{ 3,4,5,6 }, l{ -3,-4,-5,-6 }, l{ 7,8,9 }, l{ -7, -8, -9 });
-  FAST_CHECK_UNARY(dv.isApprox(Ax * dxm + Ay * dym + Az * dzm));
+  EXPECT_TRUE(dv.isApprox(Ax * dxm + Ay * dym + Az * dzm));
 
   dv = uf.velocity(xr, l{ -1,-2 }, l{ 3,4,5,6 }, dyr, zr, l{ -7,-8,-9 });
-  FAST_CHECK_UNARY(dv.isApprox(Ax * dxm + Ay * dyr + Az * dzm));
+  EXPECT_TRUE(dv.isApprox(Ax * dxm + Ay * dyr + Az * dzm));
 
   dv = uf.velocity(*x, xr, dxr);
-  FAST_CHECK_UNARY(dv.isApprox(Ax * dxr + Ay * dyr + Az * dzm));
+  EXPECT_TRUE(dv.isApprox(Ax * dxr + Ay * dyr + Az * dzm));
 
   dv = uf.velocity(*z, l{1,2,3}, l{ -1,-2,-3 }, *y, yr, l{ -3,-4,-5,-6 }, *z, zr, l{ -7,-8,-9 }, *x, xr, dxr);
-  FAST_CHECK_UNARY(dv.isApprox(Ax * dxr + Ay * dym + Az * dzm));
+  EXPECT_TRUE(dv.isApprox(Ax * dxr + Ay * dym + Az * dzm));
 
   VectorXd concatdr(9);
   concatdr << dxr, dyr, dzr;
   dv = uf.velocity(concatr, concatdr);
-  FAST_CHECK_UNARY(dv.isApprox(Ax * dxr + Ay * dyr + Az * dzr));
+  EXPECT_TRUE(dv.isApprox(Ax * dxr + Ay * dyr + Az * dzr));
 
   dv = uf.velocity(l{ 1,2,3,4,5,6,7,8,9 }, concatdr);
-  FAST_CHECK_UNARY(dv.isApprox(Ax * dxr + Ay * dyr + Az * dzr));
+  EXPECT_TRUE(dv.isApprox(Ax * dxr + Ay * dyr + Az * dzr));
 
   dv = uf.velocity(concatr, l{ -1,-2,-3,-4,-5,-6,-7,-8,-9 });
-  FAST_CHECK_UNARY(dv.isApprox(Ax * dxm + Ay * dym + Az * dzm));
+  EXPECT_TRUE(dv.isApprox(Ax * dxm + Ay * dym + Az * dzm));
 
   dv = uf.velocity(l{ 1,2,3,4,5,6,7,8,9 }, l{ -1,-2,-3,-4,-5,-6,-7,-8,-9 });
-  FAST_CHECK_UNARY(dv.isApprox(Ax * dxm + Ay * dym + Az * dzm));
+  EXPECT_TRUE(dv.isApprox(Ax * dxm + Ay * dym + Az * dzm));
 
   //errors
   // not enough args
-  CHECK_THROWS(uf.velocity(xr, dxr, yr, dyr));
+  EXPECT_ANY_THROW(uf.velocity(xr, dxr, yr, dyr));
   //uf.velocity(xr, dxr, yr, dyr, zr); //does not compile (and that's normal)
-  CHECK_THROWS(uf.velocity(l{ 1,2 }, l{-1,-2}, l{ 3,4,5,6 }, l{ -3,-4,-5,-6 }));
+  EXPECT_ANY_THROW(uf.velocity(l{ 1,2 }, l{-1,-2}, l{ 3,4,5,6 }, l{ -3,-4,-5,-6 }));
   //uf.value(*x); //does not compile (and that's normal)
   // too many args
-  CHECK_THROWS(uf.velocity(xr, dxr, yr, dyr, zr, dzr, xm, dxm, ym, dym, zm, dzm));
-  CHECK_THROWS(uf.velocity(l{ 1,2 }, dxr, l{ 3,4,5,6 }, l{ -3,-4,-5,-6 }, zr, l{ -7,-8,-9 }, l{ 1,2 }, l{ -1,-2 }, l{ 3,4,5,6 }, l{ -3,-4,-5,-6 }));
+  EXPECT_ANY_THROW(uf.velocity(xr, dxr, yr, dyr, zr, dzr, xm, dxm, ym, dym, zm, dzm));
+  EXPECT_ANY_THROW(uf.velocity(l{ 1,2 }, dxr, l{ 3,4,5,6 }, l{ -3,-4,-5,-6 }, zr, l{ -7,-8,-9 }, l{ 1,2 }, l{ -1,-2 }, l{ 3,4,5,6 }, l{ -3,-4,-5,-6 }));
   //uf.value(*x, xr, yr); //does not compile (and that's normal)
   // wrong size
-  CHECK_THROWS(uf.velocity(xr, dxr, yr, dxr, zr, dzr));
-  CHECK_THROWS(uf.velocity(l{ 1,2,3 }, dxr, l{ 3,4,5,6 }, dyr, l{ 7., 8., 9. }, dzr));
-  CHECK_THROWS(uf.velocity(*x, xr, dzr));
+  EXPECT_ANY_THROW(uf.velocity(xr, dxr, yr, dxr, zr, dzr));
+  EXPECT_ANY_THROW(uf.velocity(l{ 1,2,3 }, dxr, l{ 3,4,5,6 }, dyr, l{ 7., 8., 9. }, dzr));
+  EXPECT_ANY_THROW(uf.velocity(*x, xr, dzr));
 
   // normal acceleration
   VectorXd na = udf.normalAcceleration(xr, dxr, zr, dzr);
-  FAST_CHECK_UNARY(na.isApprox(2*(dxr.transpose()*dxr - dzr.transpose()*dzr)));
+  EXPECT_TRUE(na.isApprox(2*(dxr.transpose()*dxr - dzr.transpose()*dzr)));
   na = udf.normalAcceleration(l{ 1,2 }, l{ -1,-2 }, l{ 7,8,9 }, l{ -7,-8,-9 });
-  FAST_CHECK_UNARY(na.isApprox(2 * (dxm.transpose()*dxm - dzm.transpose()*dzm)));
+  EXPECT_TRUE(na.isApprox(2 * (dxm.transpose()*dxm - dzm.transpose()*dzm)));
   na = udf.normalAcceleration(l{ 1,2 }, dxr, zr, l{ -7,-8,-9 });
-  FAST_CHECK_UNARY(na.isApprox(2 * (dxr.transpose()*dxr - dzm.transpose()*dzm)));
+  EXPECT_TRUE(na.isApprox(2 * (dxr.transpose()*dxr - dzm.transpose()*dzm)));
   na = udf.normalAcceleration(*z, l{ 7,8,9 }, dzr, *x, l{ 1,2 }, l{ -1,-2 });
-  FAST_CHECK_UNARY(na.isApprox(2 * (dxm.transpose()*dxm - dzr.transpose()*dzr)));
+  EXPECT_TRUE(na.isApprox(2 * (dxm.transpose()*dxm - dzr.transpose()*dzr)));
   na = udf.normalAcceleration(l{ 1,2,7,8,9 }, l{ -1,-2,-7,-8,-9 });
-  FAST_CHECK_UNARY(na.isApprox(2 * (dxm .transpose()*dxm - dzm.transpose()*dzm)));
+  EXPECT_TRUE(na.isApprox(2 * (dxm .transpose()*dxm - dzm.transpose()*dzm)));
 
-  CHECK_THROWS(udf.normalAcceleration(*z, l{ 7,8.9 }, dzr, *x, l{ 1,2 }, l{ -1,-2 }));
+  EXPECT_ANY_THROW(udf.normalAcceleration(*z, l{ 7,8.9 }, dzr, *x, l{ 1,2 }, l{ -1,-2 }));
 
   // JDot
   MatrixXd Jd = uf.JDot(*x, xr, dxr, yr, dyr, zr, dzr);
-  FAST_CHECK_UNARY(Jd.isZero());
+  EXPECT_TRUE(Jd.isZero());
   Jd = uf.JDot(*x, concatr, concatdr);
-  FAST_CHECK_UNARY(Jd.isZero());
-  CHECK_THROWS(udf.JDot(*x, xr, dzr));
+  EXPECT_TRUE(Jd.isZero());
+  EXPECT_ANY_THROW(udf.JDot(*x, xr, dzr));
 }
 
-TEST_CASE("Test checks")
-{
+TEST(UtilsTest, checks) {  // NOLINT
   VariablePtr x = Space(3).createVariable("x");
 
   auto f = std::make_shared<SphereFunction>(x, Vector3d(1, 0, 0), 3);
   auto brokenf = std::make_shared<BrokenSphereFunction>(x, Vector3d(1, 0, 0), 3);
-  FAST_CHECK_UNARY(checkJacobian(f));
+  EXPECT_TRUE(checkJacobian(f));
   brokenf->breakJacobian(true);
-  FAST_CHECK_UNARY_FALSE(checkJacobian(brokenf, {1e-7, 1e-6,false}));
+  EXPECT_FALSE(checkJacobian(brokenf, {1e-7, 1e-6,false}));
   brokenf->breakJacobian(false);
 
-  FAST_CHECK_UNARY(checkVelocity(f));
+  EXPECT_TRUE(checkVelocity(f));
   brokenf->breakVelocity(true);
-  FAST_CHECK_UNARY_FALSE(checkVelocity(brokenf, { 1e-7, 1e-6,false }));
+  EXPECT_FALSE(checkVelocity(brokenf, { 1e-7, 1e-6,false }));
   brokenf->breakVelocity(false);
 
-  FAST_CHECK_UNARY(checkNormalAcceleration(f));
+  EXPECT_TRUE(checkNormalAcceleration(f));
   brokenf->breakNormalAcceleration(true);
-  FAST_CHECK_UNARY_FALSE(checkNormalAcceleration(brokenf, { 1e-7, 1e-6,false }));
+  EXPECT_FALSE(checkNormalAcceleration(brokenf, { 1e-7, 1e-6,false }));
   brokenf->breakNormalAcceleration(false);
 }
 
-TEST_CASE("Test graph generation") 
-{
+TEST(UtilsTest, graphGeneration) {  // NOLINT
   VariablePtr x = Space(3).createVariable("x");
   auto dx = dot(x);
   x << Vector3d::Random();
@@ -488,32 +511,32 @@ TEST_CASE("Test graph generation")
   g->execute();
 
   //checks: values should be the same if not updated, and different otherwise
-  FAST_CHECK_NE(f1->value()[0], v1[0]);
-  FAST_CHECK_NE(f2->value()[0], v2[0]);
-  FAST_CHECK_NE(f3->value()[0], v3[0]);
-  FAST_CHECK_NE(f4->value()[0], v4[0]);
-  FAST_CHECK_NE(f12->value()[0], v12[0]);
-  FAST_CHECK_NE(f34->value()[0], v34[0]);
-  FAST_CHECK_NE(f->value()[0], v[0]);
-  FAST_CHECK_NE(f1->velocity()[0], dv1[0]);
-  FAST_CHECK_NE(f2->velocity()[0], dv2[0]);
-  FAST_CHECK_EQ(f3->velocity()[0], dv3[0]);
-  FAST_CHECK_EQ(f4->velocity()[0], dv4[0]);
-  FAST_CHECK_NE(f12->velocity()[0], dv12[0]);
-  FAST_CHECK_EQ(f34->velocity()[0], dv34[0]);
-  FAST_CHECK_EQ(f->velocity()[0], dv[0]);
-  FAST_CHECK_EQ(f1->jacobian(*x)(0), J1(0));
-  FAST_CHECK_EQ(f2->jacobian(*x)(0), J2(0));
-  FAST_CHECK_NE(f3->jacobian(*x)(0), J3(0));
-  FAST_CHECK_NE(f4->jacobian(*x)(0), J4(0));
-  FAST_CHECK_EQ(f12->jacobian(*x)(0), J12(0));
-  FAST_CHECK_EQ(f34->jacobian(*x)(0), J34(0)); //for the difference of sphere functions, the jacobian is independent of x
-  FAST_CHECK_EQ(f->jacobian(*x)(0), J(0));
-  FAST_CHECK_NE(f1->normalAcceleration()[0], na1[0]);  //for SphereFunction, the normal acceleration is updated when the velocity is updated
-  FAST_CHECK_NE(f2->normalAcceleration()[0], na2[0]);  //for SphereFunction, the normal acceleration is updated when the velocity is updated
-  FAST_CHECK_EQ(f3->normalAcceleration()[0], na3[0]);
-  FAST_CHECK_EQ(f4->normalAcceleration()[0], na4[0]);
-  FAST_CHECK_EQ(f12->normalAcceleration()[0], na12[0]);
-  FAST_CHECK_EQ(f34->normalAcceleration()[0], na34[0]);
-  FAST_CHECK_EQ(f->normalAcceleration()[0], na[0]);
+  EXPECT_NE(f1->value()[0], v1[0]);
+  EXPECT_NE(f2->value()[0], v2[0]);
+  EXPECT_NE(f3->value()[0], v3[0]);
+  EXPECT_NE(f4->value()[0], v4[0]);
+  EXPECT_NE(f12->value()[0], v12[0]);
+  EXPECT_NE(f34->value()[0], v34[0]);
+  EXPECT_NE(f->value()[0], v[0]);
+  EXPECT_NE(f1->velocity()[0], dv1[0]);
+  EXPECT_NE(f2->velocity()[0], dv2[0]);
+  EXPECT_EQ(f3->velocity()[0], dv3[0]);
+  EXPECT_EQ(f4->velocity()[0], dv4[0]);
+  EXPECT_NE(f12->velocity()[0], dv12[0]);
+  EXPECT_EQ(f34->velocity()[0], dv34[0]);
+  EXPECT_EQ(f->velocity()[0], dv[0]);
+  EXPECT_EQ(f1->jacobian(*x)(0), J1(0));
+  EXPECT_EQ(f2->jacobian(*x)(0), J2(0));
+  EXPECT_NE(f3->jacobian(*x)(0), J3(0));
+  EXPECT_NE(f4->jacobian(*x)(0), J4(0));
+  EXPECT_EQ(f12->jacobian(*x)(0), J12(0));
+  EXPECT_DOUBLE_EQ(f34->jacobian(*x)(0), J34(0)); //for the difference of sphere functions, the jacobian is independent of x
+  EXPECT_EQ(f->jacobian(*x)(0), J(0));
+  EXPECT_NE(f1->normalAcceleration()[0], na1[0]);  //for SphereFunction, the normal acceleration is updated when the velocity is updated
+  EXPECT_NE(f2->normalAcceleration()[0], na2[0]);  //for SphereFunction, the normal acceleration is updated when the velocity is updated
+  EXPECT_EQ(f3->normalAcceleration()[0], na3[0]);
+  EXPECT_EQ(f4->normalAcceleration()[0], na4[0]);
+  EXPECT_EQ(f12->normalAcceleration()[0], na12[0]);
+  EXPECT_EQ(f34->normalAcceleration()[0], na34[0]);
+  EXPECT_EQ(f->normalAcceleration()[0], na[0]);
 }

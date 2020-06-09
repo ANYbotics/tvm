@@ -72,7 +72,9 @@ where the main options are:
  
 Documentation
 --------------------
-The main classes are documented with doxygen-compatible comments (WIP)
+The main classes are documented with doxygen-compatible comments.
+
+Click [here](https://jrl-umi3218.github.io/tvm/doxygen/HEAD/index.html) to view the documentation.
 
 ### Topics (todo):
   - how to write a problem

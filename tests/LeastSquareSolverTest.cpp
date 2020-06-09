@@ -1,3 +1,34 @@
+/*
+ * BSD 2-Clause License
+ *
+ * Copyright (c) 2012-2019, CNRS-UM LIRMM, CNRS-AIST JRL
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+#include <gtest/gtest.h>
+
 #include "SolverTestFunctions.h"
 
 #include <tvm/LinearizedControlProblem.h>
@@ -23,10 +54,6 @@ using namespace tvm::requirements;
 using namespace tvm::solver;
 using namespace tvm::solver::abstract;
 using namespace Eigen;
-
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
-#include "doctest/doctest.h"
 
 std::unique_ptr<LinearizedControlProblem> circleIK()
 {
@@ -72,13 +99,12 @@ void testSolvers(const std::unique_ptr<LinearizedControlProblem>& lpb, std::vect
   {
     for (size_t j = i + 1; j < solutions.size(); ++j)
     {
-      FAST_CHECK_UNARY(solutions[i].isApprox(solutions[j], eps));
+      EXPECT_TRUE(solutions[i].isApprox(solutions[j], eps)) << "Failed at i = "<< i << " and j = "<< j<<std::endl;
     }
   }
 }
 
-TEST_CASE("Simple IK")
-{
+TEST(LeastSquareSolverTest, simpleIK) {  // NOLINT
   auto lpb = circleIK();
   std::vector<std::shared_ptr<LSSolverFactory> > configs;
 #ifdef TVM_USE_LSSOL
@@ -93,5 +119,5 @@ TEST_CASE("Simple IK")
   configs.push_back(std::make_shared<QuadprogLSSolverFactory>(QuadprogLSSolverOptions().cholesky(true)));
 #endif
 
-  testSolvers(lpb, configs, 1e-6);
+  testSolvers(lpb, configs, 1e-3);
 }

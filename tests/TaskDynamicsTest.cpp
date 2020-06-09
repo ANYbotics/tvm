@@ -1,6 +1,33 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#define DOCTEST_CONFIG_SUPER_FAST_ASSERTS
-#include "doctest/doctest.h"
+/*
+ * BSD 2-Clause License
+ *
+ * Copyright (c) 2012-2019, CNRS-UM LIRMM, CNRS-AIST JRL
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+#include <gtest/gtest.h>
 
 #include "SolverTestFunctions.h"
 
@@ -19,18 +46,16 @@
 using namespace Eigen;
 using namespace tvm;
 
-TEST_CASE("Valid construction")
-{
+TEST(TaskDynamicsTest, validConstruction) {  // NOLINT
   VariablePtr x = Space(3).createVariable("x");
   x << Vector3d::Zero();
   auto f = std::make_shared<function::IdentityFunction>(x);
   task_dynamics::Constant td;
-  CHECK_NOTHROW(td.impl(f, constraint::Type::EQUAL, Vector3d(1, 0, 0)));
-  CHECK_THROWS(td.impl(f, constraint::Type::EQUAL, Vector2d(1, 0)));
+  EXPECT_NO_THROW(td.impl(f, constraint::Type::EQUAL, Vector3d(1, 0, 0)));
+  EXPECT_ANY_THROW(td.impl(f, constraint::Type::EQUAL, Vector2d(1, 0)));
 }
 
-TEST_CASE("Test Constant")
-{
+TEST(TaskDynamicsTest, constant) {  // NOLINT
   VariablePtr x = Space(3).createVariable("x");
   x << Vector3d::Zero();
   auto f = std::make_shared<function::IdentityFunction>(x);
@@ -39,14 +64,13 @@ TEST_CASE("Test Constant")
 
   tdi->updateValue();
 
-  FAST_CHECK_EQ(tdi->order(), task_dynamics::Order::Zero);
-  FAST_CHECK_UNARY(tdi->value().isApprox(Vector3d(1, 0, 0)));
-  FAST_CHECK_UNARY(tdi->checkType<task_dynamics::Constant>());
-  FAST_CHECK_UNARY_FALSE(tdi->checkType<task_dynamics::None>());
+  EXPECT_EQ(tdi->order(), task_dynamics::Order::Zero);
+  EXPECT_TRUE(tdi->value().isApprox(Vector3d(1, 0, 0)));
+  EXPECT_TRUE(tdi->checkType<task_dynamics::Constant>());
+  EXPECT_FALSE(tdi->checkType<task_dynamics::None>());
 }
 
-TEST_CASE("Test None")
-{
+TEST(TaskDynamicsTest, none) {  // NOLINT
   VariablePtr x = Space(3).createVariable("x");
   x << 1,2,3;
   MatrixXd A = MatrixXd::Random(2, 3);
@@ -58,14 +82,13 @@ TEST_CASE("Test None")
   f->updateValue();
   tdi->updateValue();
 
-  FAST_CHECK_EQ(tdi->order(), task_dynamics::Order::Zero);
-  FAST_CHECK_UNARY(tdi->value().isApprox(Vector2d(0,-2)));
-  FAST_CHECK_UNARY(tdi->checkType<task_dynamics::None>());
-  FAST_CHECK_UNARY_FALSE(tdi->checkType<task_dynamics::Constant>());
+  EXPECT_EQ(tdi->order(), task_dynamics::Order::Zero);
+  EXPECT_TRUE(tdi->value().isApprox(Vector2d(0,-2)));
+  EXPECT_TRUE(tdi->checkType<task_dynamics::None>());
+  EXPECT_FALSE(tdi->checkType<task_dynamics::Constant>());
 }
 
-TEST_CASE("Test Proportional")
-{
+TEST(TaskDynamicsTest, proportional) {  // NOLINT
   VariablePtr x = Space(3).createVariable("x");
   x << 1, 2, 3;
   auto f = std::make_shared<SphereFunction>(x, Vector3d(1, 0, -3), 2);
@@ -78,14 +101,13 @@ TEST_CASE("Test Proportional")
   f->updateValue();
   tdi->updateValue();
 
-  FAST_CHECK_EQ(tdi->order(), task_dynamics::Order::One);
-  FAST_CHECK_EQ(tdi->value()[0], -kp*(36 - rhs[0]));  // -kp*||(1,2,3) - (1,0,-3)||^2 - 2^2 - rhs
-  FAST_CHECK_UNARY(tdi->checkType<task_dynamics::P>());
-  FAST_CHECK_UNARY_FALSE(tdi->checkType<task_dynamics::Constant>());
+  EXPECT_EQ(tdi->order(), task_dynamics::Order::One);
+  EXPECT_EQ(tdi->value()[0], -kp*(36 - rhs[0]));  // -kp*||(1,2,3) - (1,0,-3)||^2 - 2^2 - rhs
+  EXPECT_TRUE(tdi->checkType<task_dynamics::P>());
+  EXPECT_FALSE(tdi->checkType<task_dynamics::Constant>());
 }
 
-TEST_CASE("Test Proportional Derivative")
-{
+TEST(TaskDynamicsTest, proportionalDerivative) {  // NOLINT
   VariablePtr x = Space(3).createVariable("x");
   VariablePtr dx = dot(x);
   x << 1, 2, 3;
@@ -102,14 +124,13 @@ TEST_CASE("Test Proportional Derivative")
   f->updateVelocityAndNormalAcc();
   tdi->updateValue();
 
-  FAST_CHECK_EQ(tdi->order(), task_dynamics::Order::Two);
-  FAST_CHECK_EQ(tdi->value()[0], -kp*(36 - rhs[0])-kv*16);
-  FAST_CHECK_UNARY(tdi->checkType<task_dynamics::PD>());
-  FAST_CHECK_UNARY_FALSE(tdi->checkType<task_dynamics::Constant>());
+  EXPECT_EQ(tdi->order(), task_dynamics::Order::Two);
+  EXPECT_EQ(tdi->value()[0], -kp*(36 - rhs[0])-kv*16);
+  EXPECT_TRUE(tdi->checkType<task_dynamics::PD>());
+  EXPECT_FALSE(tdi->checkType<task_dynamics::Constant>());
 }
 
-TEST_CASE("Test Velocity Damper")
-{
+TEST(TaskDynamicsTest, velocityDamper) {  // NOLINT
   VariablePtr x = Space(3).createVariable("x");
   VariablePtr dx = dot(x);
   auto f = std::make_shared<function::IdentityFunction>(x);
@@ -120,12 +141,12 @@ TEST_CASE("Test Velocity Damper")
   double dt = 0.1;
 
   //test validity
-  CHECK_THROWS(task_dynamics::VelocityDamper({ 0.5, ds, xsi }));
-  CHECK_THROWS(task_dynamics::VelocityDamper(dt, { 0.5, ds, xsi }, 1000));
-  CHECK_THROWS(task_dynamics::VelocityDamper({ di, ds, -1 }));
-  CHECK_THROWS(task_dynamics::VelocityDamper(dt, { di, ds, -1 }, 1000));
-  CHECK_THROWS(task_dynamics::VelocityDamper(0, { di, ds, xsi }, 1000));
-  CHECK_THROWS(task_dynamics::VelocityDamper(-0.1, { di, ds, xsi }, 1000));
+  EXPECT_ANY_THROW(task_dynamics::VelocityDamper({ 0.5, ds, xsi }));
+  EXPECT_ANY_THROW(task_dynamics::VelocityDamper(dt, { 0.5, ds, xsi }, 1000));
+  EXPECT_ANY_THROW(task_dynamics::VelocityDamper({ di, ds, -1 }));
+  EXPECT_ANY_THROW(task_dynamics::VelocityDamper(dt, { di, ds, -1 }, 1000));
+  EXPECT_ANY_THROW(task_dynamics::VelocityDamper(0, { di, ds, xsi }, 1000));
+  EXPECT_ANY_THROW(task_dynamics::VelocityDamper(-0.1, { di, ds, xsi }, 1000));
 
   //test kinematics
   task_dynamics::VelocityDamper td1({ di, ds, xsi });
@@ -136,21 +157,21 @@ TEST_CASE("Test Velocity Damper")
     f->updateValue();
     tdl->updateValue();
 
-    FAST_CHECK_EQ(tdl->order(), task_dynamics::Order::One);
-    FAST_CHECK_EQ(tdl->value()[0], 0);
-    FAST_CHECK_EQ(tdl->value()[1], -1);
-    FAST_CHECK_EQ(tdl->value()[2], -constant::big_number);
-    FAST_CHECK_UNARY(tdl->checkType<task_dynamics::VelocityDamper>());
-    FAST_CHECK_UNARY_FALSE(tdl->checkType<task_dynamics::Constant>());
+    EXPECT_EQ(tdl->order(), task_dynamics::Order::One);
+    EXPECT_EQ(tdl->value()[0], 0);
+    EXPECT_EQ(tdl->value()[1], -1);
+    EXPECT_EQ(tdl->value()[2], -constant::big_number);
+    EXPECT_TRUE(tdl->checkType<task_dynamics::VelocityDamper>());
+    EXPECT_FALSE(tdl->checkType<task_dynamics::Constant>());
 
 
     x << -1, -2, -4;
     auto tdu = td1.impl(f, constraint::Type::LOWER_THAN, Vector3d::Zero());
     f->updateValue();
     tdu->updateValue();
-    FAST_CHECK_EQ(tdu->value()[0], 0);
-    FAST_CHECK_EQ(tdu->value()[1], 1);
-    FAST_CHECK_EQ(tdu->value()[2], constant::big_number);
+    EXPECT_EQ(tdu->value()[0], 0);
+    EXPECT_EQ(tdu->value()[1], 1);
+    EXPECT_EQ(tdu->value()[2], constant::big_number);
   }
 
 
@@ -166,10 +187,10 @@ TEST_CASE("Test Velocity Damper")
     f->updateVelocity();
     tdl->updateValue();
 
-    FAST_CHECK_EQ(tdl->order(), task_dynamics::Order::Two);
-    FAST_CHECK_UNARY(tdl->value().isApprox(Vector3d(-10, -20, -1000)));
-    FAST_CHECK_UNARY(tdl->checkType<task_dynamics::VelocityDamper>());
-    FAST_CHECK_UNARY_FALSE(tdl->checkType<task_dynamics::Constant>());
+    EXPECT_EQ(tdl->order(), task_dynamics::Order::Two);
+    EXPECT_TRUE(tdl->value().isApprox(Vector3d(-10, -20, -1000)));
+    EXPECT_TRUE(tdl->checkType<task_dynamics::VelocityDamper>());
+    EXPECT_FALSE(tdl->checkType<task_dynamics::Constant>());
 
     x << -1, -2, -4;
     dx << -1, -1, -1;
@@ -178,13 +199,12 @@ TEST_CASE("Test Velocity Damper")
     f->updateValue();
     f->updateVelocity();
     tdu->updateValue();
-    FAST_CHECK_UNARY(tdu->value().isApprox(Vector3d(10, 20, 1000)));
+    EXPECT_TRUE(tdu->value().isApprox(Vector3d(10, 20, 1000)));
   }
 
 }
 
-TEST_CASE("Test automatic xsi")
-{
+TEST(TaskDynamicsTest, automaticXsi) {  // NOLINT
   VariablePtr x = Space(3).createVariable("x");
   VariablePtr dx = dot(x);
   auto f = std::make_shared<function::IdentityFunction>(x);
@@ -206,28 +226,28 @@ TEST_CASE("Test automatic xsi")
     auto gl = utils::generateUpdateGraph(tdl, Value);
 
     gl->execute();
-    FAST_CHECK_UNARY(tdl->value().isApprox(Vector3d(-big, -big, -1)));
+    EXPECT_TRUE(tdl->value().isApprox(Vector3d(-big, -big, -1)));
 
     x << 4.5, 3.5, 1.5;
     gl->execute();
-    FAST_CHECK_UNARY(tdl->value().isApprox(Vector3d(-big, -big, -0.5)));
+    EXPECT_TRUE(tdl->value().isApprox(Vector3d(-big, -big, -0.5)));
 
     x << 4, 3, 1;
     gl->execute();
-    FAST_CHECK_UNARY(tdl->value().isApprox(Vector3d(-big, -1.5, 0)));
+    EXPECT_TRUE(tdl->value().isApprox(Vector3d(-big, -1.5, 0)));
 
     //we check that two consecutive updates with the same variable values give the same results.
     gl->execute();
-    FAST_CHECK_UNARY(tdl->value().isApprox(Vector3d(-big, -1.5, 0)));
+    EXPECT_TRUE(tdl->value().isApprox(Vector3d(-big, -1.5, 0)));
 
     dx << -0.5, -0.5, 0;
     x << 3.5, 2.5, 1;
     gl->execute();
-    FAST_CHECK_UNARY(tdl->value().isApprox(Vector3d(-big, -1.125, 0)));
+    EXPECT_TRUE(tdl->value().isApprox(Vector3d(-big, -1.125, 0)));
 
     x << 3, 2, 1;
     gl->execute();
-    FAST_CHECK_UNARY(tdl->value().isApprox(Vector3d(-1.5, -0.75, 0)));
+    EXPECT_TRUE(tdl->value().isApprox(Vector3d(-1.5, -0.75, 0)));
 
     x << -5, -4, -2;
     dx << 0.5, 0.5, 0.5;
@@ -236,23 +256,23 @@ TEST_CASE("Test automatic xsi")
     auto gu = utils::generateUpdateGraph(tdu, Value);
 
     gu->execute();
-    FAST_CHECK_UNARY(tdu->value().isApprox(Vector3d(big, big, 1)));
+    EXPECT_TRUE(tdu->value().isApprox(Vector3d(big, big, 1)));
 
     x << -4.5, -3.5, -1.5;
     gu->execute();
-    FAST_CHECK_UNARY(tdu->value().isApprox(Vector3d(big, big, 0.5)));
+    EXPECT_TRUE(tdu->value().isApprox(Vector3d(big, big, 0.5)));
 
     x << -4, -3, -1;
     gu->execute();
-    FAST_CHECK_UNARY(tdu->value().isApprox(Vector3d(big, 1.5, 0)));
+    EXPECT_TRUE(tdu->value().isApprox(Vector3d(big, 1.5, 0)));
 
     dx << 0.5, 0.5, 0;
     x << -3.5, -2.5, -1;
     gu->execute();
-    FAST_CHECK_UNARY(tdu->value().isApprox(Vector3d(big, 1.125, 0)));
+    EXPECT_TRUE(tdu->value().isApprox(Vector3d(big, 1.125, 0)));
 
     x << -3, -2, -1;
     gu->execute();
-    FAST_CHECK_UNARY(tdu->value().isApprox(Vector3d(1.5, 0.75, 0)));
+    EXPECT_TRUE(tdu->value().isApprox(Vector3d(1.5, 0.75, 0)));
   }
 }
