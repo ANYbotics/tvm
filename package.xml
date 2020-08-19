@@ -4,6 +4,7 @@
   <version>0.8.0</version>
   <description>The TVM library</description>
   <maintainer email="avijayan@anybotics.com">Aravind Vijayan</maintainer>
+  <maintainer email="scaron@anybotics.com">Stéphane Caron</maintainer>
   <license>BSD-3</license>
   <author>Adrien Escande</author>
   <author email="pierre.gergondet@gmail.com">Pierre Gergondet</author>
@@ -14,6 +15,6 @@
 
   <test_depend>gtest</test_depend>
 
-  <test_depend>cmake_code_coverage</test_depend>
+<!--   <test_depend>cmake_code_coverage</test_depend> -->
 
 </package>
